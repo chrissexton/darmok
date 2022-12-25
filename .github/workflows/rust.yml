@@ -1,0 +1,33 @@
+name: Build Website
+
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore:
+      - docs
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Get meme-rs
+      run: |
+        sudo apt-get install libssl-dev
+        git clone https://github.com/chrissexton/meme-rs.git
+        cd meme-rs
+        make install
+    - name: Build
+      run: ./generate.sh
+    - name: Commit and push
+      run: |-
+        git diff
+        git config --global user.email "web-bot@noreply.org"
+        git config --global user.name "WEB-bot"
+        git diff --quiet || (git add docs && git commit -m "Updated website")
+        git push
